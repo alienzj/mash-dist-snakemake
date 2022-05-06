@@ -1,7 +1,7 @@
 Compute mash distance quickly from large scale genome collections
 
 ### Workflow
-<div align=center><img width="800" height="1200" src="docs/dag.svg"/></div>
+<div align=center><img width="800" height="500" src="docs/dag.svg"/></div>
 
 ### Dry run
 ```
