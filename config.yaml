@@ -1,0 +1,9 @@
+params:
+  2bRAD_M:
+    path: "/home/jiezhu/toolkit/2bRAD-M"
+
+input:
+  genomes: "gtdb207_genome_paths.tsv"
+
+output:
+  2bRAD_M: "/lustre1/u/jiezhu/projects/2bRAD-M/assay/gtdb_tag/results"
