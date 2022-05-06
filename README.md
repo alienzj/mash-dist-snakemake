@@ -1,9 +1,9 @@
 Compute mash distance quickly from large scale genome collections
 
-# Workflow
-<div align=center><img width="500" height="280" src="docs/dag.svg"/></div>
+### Workflow
+<div align=center><img width="800" height="1200" src="docs/dag.svg"/></div>
 
-# Dry run
+### Dry run
 ```
 snakemake \
 --snakefile Snakefile \
