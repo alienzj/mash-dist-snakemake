@@ -123,8 +123,8 @@ rule mash_dist:
         query = os.path.join(config["output"]["2bRAD_M"],
                              "mash_sketch/{enzyme}/batch_{query}.msh")
     output:
-        dist = os.path.join(config["output"]["2bRAD_M"],
-                            "mash_dist/{enzyme}/{reference}_vs_{query}.mash_dist.txt")
+        dist = temp(os.path.join(config["output"]["2bRAD_M"],
+                            "mash_dist/{enzyme}/{reference}_vs_{query}.mash_dist.txt.gz"))
     benchmark:
         os.path.join(config["output"]["2bRAD_M"],
                      "benchmark/mash_dist/{enzyme}/{reference}_vs_{query}.mash_dist.benchmark.txt")
@@ -143,7 +143,14 @@ rule mash_dist:
         -v {params.max_pvalue} \
         -d {params.max_distance} \
         {input.reference} {input.query} \
-        > {output.dist} 2> {log}
+        > {output.dist}.tmp 2> {log}
+        
+        cat {output.dist}.tmp | \
+        sed 's#.fa.gz##g' | \
+        awk -F'\t' '{{split($1,a,"/"); split($2,b,"/"); print a[length(a)] "\t" b[length(b)] "\t" $3 "\t" $4 "\t" $5}}' | \
+        gzip -c > {output.dist}
+
+        rm -rf {output.dist}.tmp 
         '''
 
 
@@ -168,7 +175,7 @@ def aggregate_mash_dist_output(wildcards):
 	    enzyme_list.append(wildcards.enzyme)
 
     return expand(os.path.join(config["output"]["2bRAD_M"],
-                               "mash_dist/{enzyme}/{reference}_vs_{query}.mash_dist.txt"),
+                               "mash_dist/{enzyme}/{reference}_vs_{query}.mash_dist.txt.gz"),
                   zip,
                   enzyme=enzyme_list,
                   reference=reference_list,
@@ -179,7 +186,7 @@ rule mash_dist_merge:
     input:
         aggregate_mash_dist_output
     output:
-        os.path.join(config["output"]["2bRAD_M"], "mash_dist_merge/{enzyme}.mash_dist.txt")
+        os.path.join(config["output"]["2bRAD_M"], "mash_dist_merge/{enzyme}.mash_dist.txt.gz")
     shell:
         '''
         cat {input} > {output}
@@ -188,7 +195,7 @@ rule mash_dist_merge:
 
 rule check_finished:
     input:
-        expand(os.path.join(config["output"]["2bRAD_M"], "mash_dist_merge/{enzyme}.mash_dist.txt"),
+        expand(os.path.join(config["output"]["2bRAD_M"], "mash_dist_merge/{enzyme}.mash_dist.txt.gz"),
                enzyme=ENZYMES)
     output:
         os.path.join(config["output"]["2bRAD_M"], "finished")
